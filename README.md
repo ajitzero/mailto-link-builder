@@ -8,6 +8,8 @@ Made this little helper app for building links for `mailto` with an interface fo
 - BCC
 - Body
 
+**Update v1.1:** Added a button for "Copy to Clipboard"
+
 **View live on:** [GitHub Pages](https://ajitzero.github.io/mailto-link-builder/) | [CodePen](https://codepen.io/AjitZero/full/GRoLLmp)
 
 ## Meta
