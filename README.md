@@ -1,6 +1,5 @@
 # 🔗 Link builder for `mailto`
 
-
 Made this little helper app for building links for `mailto` with an interface for:
 
 - Subject
@@ -10,7 +9,10 @@ Made this little helper app for building links for `mailto` with an interface fo
 
 **Update v1.1:** Added a button for "Copy to Clipboard"
 
-**View live on:** [GitHub Pages](https://ajitzero.github.io/mailto-link-builder/) | [CodePen](https://codepen.io/AjitZero/full/GRoLLmp)
+**View live on:**
+[Netlify](https://prefill-mailto.ajitpanigrahi.com)
+| [GitHub Pages](https://ajitzero.github.io/mailto-link-builder/)
+| [CodePen](https://codepen.io/AjitZero/full/GRoLLmp)
 
 ## Meta
 
