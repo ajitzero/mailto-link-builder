@@ -1,5 +1,7 @@
 # 🔗 Link builder for `mailto`
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/df3ebc63-2e6b-4cc0-94e5-c1cfeadbd04a/deploy-status)](https://app.netlify.com/sites/prefill-mailto/deploys)
+
 Made this little helper app for building links for `mailto` with an interface for:
 
 - Subject
