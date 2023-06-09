@@ -9,12 +9,14 @@ Made this little helper app for building links for `mailto` with an interface fo
 - BCC
 - Body
 
-**Update v1.1:** Added a button for "Copy to Clipboard"
-
 **View live on:**
 [Netlify](https://prefill-mailto.ajitpanigrahi.com)
 | [GitHub Pages](https://ajitzero.github.io/mailto-link-builder/)
 | [CodePen](https://codepen.io/AjitZero/full/GRoLLmp)
+
+### Updates
+- **v1.2:** Added email validation & UI revamp with Pico CSS ([#5](https://github.com/ajitzero/mailto-link-builder/pull/5))
+- **v1.1:** Added a button for "Copy to Clipboard" ([#3](https://github.com/ajitzero/mailto-link-builder/pull/3))
 
 ## Meta
 
