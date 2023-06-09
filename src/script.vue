@@ -115,9 +115,9 @@ export default {
   data() {
     return {
       errors: {
-        emailId: false
-        // cc: false,
-        // bcc: false
+        emailId: false,
+        cc: false,
+        bcc: false
       },
       outputUrl: "Type something",
       emailId: "you@example.com",
