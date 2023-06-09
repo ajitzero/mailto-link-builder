@@ -1,72 +1,110 @@
 <template>
-  <div id="app">
-    <h1>
-      Create your
-      <code>mailto</code>
-      link quickly!
-    </h1>
+  <main id="app" class="container">
+    <hgroup>
+      <h2>
+        Create your
+        <code>mailto</code>
+        link quickly!
+      </h2>
+      <h3>Text formatting utility.</h3>
+    </hgroup>
 
-    <code class="outputBox">
-      {{ outputUrl }}
-    </code>
+    <article>
+      <header class="outputBox">
+        <code
+          data-tooltip="Click to copy to clipboard"
+          @click.stop.prevent="copyToClipboard"
+        >
+          {{ outputUrl }}
+        </code>
+      </header>
 
-    <form>
-      <label for="target-email-id">Target Email ID</label>
-      <input
-        name="target-email-id"
-        placeholder="Target Email ID"
-        type="email"
-        v-model="emailId"
-        v-on:keyup="updateOutputUrl"
-      />
-      <label for="subject">Subject</label>
-      <input
-        name="subject"
-        placeholder="Subject"
-        type="text"
-        v-model="email.subject"
-        v-on:keyup="updateOutputUrl"
-      />
-      <label for="cc">CC</label>
-      <input
-        name="cc"
-        placeholder="CC"
-        type="text"
-        v-model="email.cc"
-        v-on:keyup="updateOutputUrl"
-      />
-      <label for="bcc">BCC</label>
-      <input
-        name="bcc"
-        placeholder="BCC"
-        type="text"
-        v-model="email.bcc"
-        v-on:keyup="updateOutputUrl"
-      />
-      <label for="body">Body</label>
-      <textarea
-        name="body"
-        placeholder="Body"
-        type="text"
-        v-model="email.body"
-        v-on:keyup="updateOutputUrl"
-      ></textarea>
-      <input type="hidden" id="final-link-to-copy" :value="outputUrl" />
-    </form>
+      <form>
+        <label for="target-email-id">
+          Target Email ID
+          <input
+            name="target-email-id"
+            placeholder="Target Email ID"
+            type="email"
+            multiple="true"
+            :aria-invalid="errors.emailId"
+            v-model="emailId"
+            v-on:keyup="updateOutputUrl"
+          />
+        </label>
+        <div class="grid">
+          <label for="cc">
+            <span data-tooltip="Carbon Copy" data-placement="right">CC</span>
+            <input
+              name="cc"
+              placeholder="CC"
+              type="email"
+              multiple="true"
+              :aria-invalid="errors.cc"
+              v-model="email.cc"
+              v-on:keyup="updateOutputUrl"
+            />
+          </label>
+          <label for="bcc">
+            <span data-tooltip="Blind Carbon Copy" data-placement="right">
+              BCC
+            </span>
+            <input
+              name="bcc"
+              placeholder="BCC"
+              type="email"
+              multiple="true"
+              :aria-invalid="errors.bcc"
+              v-model="email.bcc"
+              v-on:keyup="updateOutputUrl"
+            />
+          </label>
+        </div>
+        <label for="subject">
+          Subject
+          <input
+            name="subject"
+            placeholder="Subject"
+            type="text"
+            v-model="email.subject"
+            v-on:keyup="updateOutputUrl"
+          />
+        </label>
+        <label for="body">
+          Body
+          <textarea
+            name="body"
+            placeholder="Body"
+            type="text"
+            required
+            v-model="email.body"
+            v-on:keyup="updateOutputUrl"
+          ></textarea>
+        </label>
+        <input type="hidden" id="final-link-to-copy" :value="outputUrl" />
+        <div class="grid gridWithSpace">
+          <a role="button" href="#" @click.stop.prevent="copyToClipboard">
+            Copy to Clipboard
+          </a>
 
-    <a class="btn" @click.stop.prevent="copyToClipboard">
-      Copy to Clipboard
-    </a>
+          <a
+            role="button"
+            class="outline"
+            :href="outputUrl"
+            target="_blank"
+            data-tooltip="Opens in a new tab"
+          >
+            Test it!
+          </a>
+        </div>
+      </form>
 
-    <a class="btn" v-bind:href="outputUrl">
-      Test it!
-    </a>
-
-    <footer>
-      Built by
-      <a href="https://twitter.com/ajitzero">@AjitZero</a>
-    </footer>
-  </div>
+      <footer>
+        Built by
+        <a href="https://github.com/ajitzero" target="_blank">@ajitzero</a>
+      </footer>
+    </article>
+  </main>
 </template>
 
 <script>
@@ -76,6 +114,11 @@ export default {
   },
   data() {
     return {
+      errors: {
+        emailId: false
+        // cc: false,
+        // bcc: false
+      },
       outputUrl: "Type something",
       emailId: "you@example.com",
       email: {
@@ -88,133 +131,106 @@ export default {
   },
   methods: {
     updateOutputUrl() {
-      this.outputUrl = "mailto:" + this.emailId;
-      const emailKeys = Object.keys(this.email);
-      const remaining = emailKeys.filter(
+      this.outputUrl = this.getOutputUrl();
+    },
+    getOutputUrl() {
+      const remaining = Object.keys(this.email).filter(
         (key) => this.email[key].trim().length > 0
       );
-      if (remaining.length > 0) {
-        this.outputUrl += "?";
+      const errors = [];
+      this.errors.emailId = this.validateEmailField(this.emailId, {
+        required: true
+      });
+      this.errors.cc = this.validateEmailField(this.email.cc);
+      this.errors.bcc = this.validateEmailField(this.email.bcc);
+      if (this.errors.emailId) errors.push("Target Email ID");
+      if (this.errors.cc) errors.push("CC");
+      if (this.errors.bcc) errors.push("BCC");
+      if (errors.length) {
+        return "Required valid fields: " + errors.join(", ") + ".";
       }
-
-      this.outputUrl += remaining
+      const customFields = remaining
         .map((key) => `${key}=${encodeURI(this.email[key].trim())}`)
         .join("&");
+      return (
+        `mailto:${this.emailId}` +
+        (customFields.length ? `?${customFields}` : "")
+      );
+    },
+    validateEmailField(value, options) {
+      options = {
+        required: false,
+        ...options
+      };
+      const emails = value
+        .split(",")
+        .map((val) => val.trim())
+        .filter(Boolean)
+        .map((val) => this.isValidEmail(val.trim()));
+      if (options.required) {
+        return emails.length === 0 || emails.some((flag) => !flag);
+      }
+      return emails.length != 0 ? emails.some((flag) => !flag) : false;
+    },
+    isValidEmail(email) {
+      return String(email)
+        .toLowerCase()
+        .match(
+          /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+        );
     },
     copyToClipboard() {
       const finalLinkToCopy = document.querySelector("#final-link-to-copy");
       finalLinkToCopy.setAttribute("type", "text");
       finalLinkToCopy.select();
       try {
-        let res = document.execCommand("copy");
-        alert("Copied to clipboard!");
+        const passed = document.execCommand("copy");
+        alert(
+          passed
+            ? "Copied to clipboard!"
+            : "Unable to copy! Please select the text & copy it."
+        );
       } catch (e) {
         alert("Unable to copy! Please select the text & copy it.");
       }
       finalLinkToCopy.setAttribute("type", "hidden");
       window.getSelection().removeAllRanges();
-    },
+    }
   }
 };
 </script>
 
 <style>
 #app {
-  color: #2c3e50;
-  font-family: Helvetica Neue, Georgia, sans-serif;
-  font-size: 16px;
-  margin: 60px auto 40px;
-  max-width: 600px;
-  width: 90%;
-}
+  /* lime */
+  --primary: #c0ca33;
+  --primary-hover: #afb42b;
+  --primary-focus: rgba(192, 202, 51, 0.125);
+  --primary-inverse: rgba(0, 0, 0, 0.75);
 
+  font-family: system-ui, sans-serif;
+}
 .outputBox {
   -ms-user-select: all;
   -webkit-user-select: all;
   user-select: all;
-  background: #2d2b55;
-  border-radius: 6px;
-  box-sizing: border-box;
-  color: #fad000;
-  display: block;
-  margin: 0 auto 20px;
-  overflow-x: auto;
-  padding: 20px;
-  white-space: nowrap;
-  width: 100%;
+  word-break: break-all;
 }
-
-h1 {
+hgroup {
   text-align: center;
 }
-
-a {
-  color: #000;
-  font-weight: 700;
-  text-decoration: none;
-}
-a:hover {
-  text-decoration: underline;
-}
-
-.btn {
-  background: #2d2b55;
-  border-radius: 6px;
-  box-sizing: border-box;
-  color: #fad000;
-  cursor: pointer;
-  display: inline-block;
-  float: right;
-  letter-spacing: 1px;
-  margin: 10px 0;
-  padding: 10px 20px;
-  text-align: center;
-  text-transform: uppercase;
-  width: 100%;
-}
-
-@media (min-width: 720px) {
-  .btn {
-    margin: 10px 0 10px 10px;
-    width: auto;
-  }
-}
-
-.btn:hover {
-  opacity: 0.9;
-  text-decoration: none;
-}
-
-label {
-  display: inline-block;
-  font-size: 0.8rem;
-  font-weight: 500;
-  margin-bottom: 0.25rem;
-  text-transform: uppercase;
-}
-label::after {
-  content: ":";
-}
-
-input,
-textarea {
-  border-radius: 6px;
-  border: 1px solid #a9a9a9;
-  box-sizing: border-box;
-  display: block;
-  margin: 0 0 10px;
-  padding: 10px;
-  width: 100%;
-}
-
 textarea {
   min-height: 200px;
   resize: vertical;
 }
-
 footer {
-  clear: both;
-  padding: 1rem 0;
   text-align: center;
+}
+.gridWithSpace > * {
+  margin-bottom: 1rem;
+}
+button,
+[role="button"] {
+  user-select: none;
 }
 </style>
